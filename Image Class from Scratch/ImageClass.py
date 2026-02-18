@@ -122,6 +122,7 @@ def make_model(input_shape, num_classes):
     outputs = layers.Dense(units, activation=None)(x)
     return keras.Model(inputs, outputs)
 
+
 # model = make_model(input_shape=image_size + (3,), num_classes=2)
 model = keras.models.load_model("save_at_2.keras") # Load the model from the last epoch 
 keras.utils.plot_model(model, show_shapes=True)
@@ -141,6 +142,8 @@ model.fit(
     callbacks=callbacks,
     validation_data=val_ds,
 )
+
+# model = keras.models.load_model("save_at_2.keras") # Load the model from the last epoch 
 
 # img = keras.utils.load_img("PetImages/Cat/6779.jpg", target_size=image_size)
 # plt.imshow(img)
