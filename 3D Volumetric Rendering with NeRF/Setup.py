@@ -11,7 +11,6 @@ os.environ["KERAS_BACKEND"] = "tensorflow"
 # Setting random seed to obtain reproducible results.
 tf.random.set_seed(42)
 
-
 # Initialize global variables.
 AUTO = tf.data.AUTOTUNE
 BATCH_SIZE = 5
