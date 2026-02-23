@@ -1,7 +1,5 @@
 import os
-import keras
-from keras import layers
-import os
+import numpy as np
 import tensorflow as tf
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
