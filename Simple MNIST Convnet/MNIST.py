@@ -84,21 +84,3 @@ for i in range(10):
     plt.axis('off')
 plt.tight_layout()
 plt.show()
-
-# Activation maps
-layer_outputs = [layer.output for layer in model.layers if 'conv' in layer.name]
-activation_model = keras.Model(inputs=model.input, outputs=layer_outputs)
-activations = activation_model.predict(x_test[0:1])
-
-plt.figure(figsize=(12, 4))
-plt.subplot(1, 2, 1)
-plt.imshow(activations[0].squeeze(), cmap='gray')
-plt.title("Activation map")
-plt.axis('off')
-
-plt.subplot(1, 2, 2)
-plt.imshow(activations[1].squeeze(), cmap='gray')
-plt.title("Activation map")
-plt.axis('off')
-plt.tight_layout()
-plt.show()
