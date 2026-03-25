@@ -92,6 +92,7 @@ print("Total questions:", len(questions))
 
 
 ## Vectorization.
+"""
 print("Vectorization...")
 x = np.zeros((len(questions), MAXLEN, len(chars)), dtype=bool)
 y = np.zeros((len(questions), DIGITS + 1, len(chars)), dtype=bool)
@@ -119,3 +120,74 @@ print(y_train.shape)
 print("Validation Data:")
 print(x_val.shape)
 print(y_val.shape)
+# """
+
+## Build the model
+"""
+print("Build model...")
+num_layers = 1  # Try to add more LSTM layers!
+
+model = keras.Sequential()
+# "Encode" the input sequence using a LSTM, producing an output of size 128.
+# Note: In a situation where your input sequences have a variable length,
+# use input_shape=(None, num_feature).
+model.add(layers.Input((MAXLEN, len(chars))))
+model.add(layers.LSTM(128))
+# As the decoder RNN's input, repeatedly provide with the last output of
+# RNN for each time step. Repeat 'DIGITS + 1' times as that's the maximum
+# length of output, e.g., when DIGITS=3, max output is 999+999=1998.
+model.add(layers.RepeatVector(DIGITS + 1))
+# The decoder RNN could be multiple layers stacked or a single layer.
+for _ in range(num_layers):
+    # By setting return_sequences to True, return not only the last output but
+    # all the outputs so far in the form of (num_samples, timesteps,
+    # output_dim). This is necessary as TimeDistributed in the below expects
+    # the first dimension to be the timesteps.
+    model.add(layers.LSTM(128, return_sequences=True))
+
+# Apply a dense layer to the every temporal slice of an input. For each of step
+# of the output sequence, decide which character should be chosen.
+model.add(layers.Dense(len(chars), activation="softmax"))
+model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+model.summary()
+# """
+
+## Train the model
+"""
+# Training parameters.
+epochs = 30
+batch_size = 32
+
+# Formatting characters for results display.
+green_color = "\033[92m"
+red_color = "\033[91m"
+end_char = "\033[0m"
+
+# Train the model each generation and show predictions against the validation
+# dataset.
+for epoch in range(1, epochs):
+    print()
+    print("Iteration", epoch)
+    model.fit(
+        x_train,
+        y_train,
+        batch_size=batch_size,
+        epochs=1,
+        validation_data=(x_val, y_val),
+    )
+    # Select 10 samples from the validation set at random so we can visualize
+    # errors.
+    for i in range(10):
+        ind = np.random.randint(0, len(x_val))
+        rowx, rowy = x_val[np.array([ind])], y_val[np.array([ind])]
+        preds = np.argmax(model.predict(rowx, verbose=0), axis=-1)
+        q = ctable.decode(rowx[0])
+        correct = ctable.decode(rowy[0])
+        guess = ctable.decode(preds[0], calc_argmax=False)
+        print("Q", q[::-1] if REVERSE else q, end=" ")
+        print("T", correct, end=" ")
+        if correct == guess:
+            print(f"{green_color}☑ {guess}{end_char}")
+        else:
+            print(f"{red_color}☒ {guess}{end_char}")
+# """
